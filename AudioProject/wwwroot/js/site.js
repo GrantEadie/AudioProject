@@ -1,5 +1,20 @@
 ﻿window.onload = function(){
 
+  var canvas = document.getElementById("canvas");
+  canvas.width = 1100;
+  canvas.height = 200;
+  var ctx = canvas.getContext("2d");
+
+  var WIDTH = canvas.width;
+  var HEIGHT = canvas.height;
+
+  var bufferLength = 128;
+
+  var dataArray = new Uint8Array(128);
+  var barWidth = (WIDTH / bufferLength) * 2.5;
+  var barHeight;
+  var x = 0;
+
 // start the sound and stuff  
 var context = new AudioContext();
 
@@ -130,6 +145,7 @@ class Instrument {
 
   startSound.addEventListener('click', function() {
     context.resume().then(() => {
+
     
       if (switchSound === "false"){
         switchSound = "true";
@@ -192,11 +208,46 @@ class Instrument {
       function handleChord(valueString) {
       chordIdx = parseInt(valueString) - 1;
       }
+
+      let analyser = new Tone.Analyser();
       
-      inst.gain.chain(reverb, filter, delay, Tone.Destination);
+      inst.gain.chain(reverb, filter, delay, analyser, Tone.Destination);
       Tone.Transport.scheduleRepeat(onRepeat, '16n');
       
       Tone.Transport.start();
+
+
+      function renderFrame() {
+        requestAnimationFrame(renderFrame);
+  
+        x = 0;
+  
+        dataArray = analyser.getValue().map(x => x + 200);
+        console.log(dataArray)
+        
+  
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  
+        for (var i = 0; i < bufferLength; i++) {
+          barHeight = dataArray[i];
+          
+          var b = 222;
+          var g = 192;
+          var r = barHeight + (30 * (i/bufferLength));
+  
+          ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+          ctx.fillRect(x, HEIGHT - (barHeight*1.2), barWidth, barHeight);
+  
+          x += barWidth + 1;
+        }
+      }
+
+      renderFrame();
+
+      setInterval(() => {
+        console.log(analyser.getValue(Float32Array).map(x => Math.round(x + 100))[1]);
+      }, 100);
 
       function onRepeat(time) {
       let chord = chords[chordIdx],
@@ -231,6 +282,8 @@ class Instrument {
             mute.innerHTML = "mute";
           };
         }
+
+        
       }
     });
   })

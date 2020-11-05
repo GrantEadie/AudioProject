@@ -28,8 +28,8 @@ namespace AudioProject.Controllers
     {
       var userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
       var currentUser = await _userManager.FindByIdAsync(userId);
-      var userHistory = _db.Sounds.Where(entry=>entry.User.Id == currentUser.Id).toList();
-      return View(userHistory);
+      // var userHistory = _db.Sounds.Where(entry=>entry.User.Id == currentUser.Id).toList();
+      return View();
     }
 
     public IActionResult Register()
