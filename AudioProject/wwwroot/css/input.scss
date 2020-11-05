@@ -4,7 +4,7 @@
   input {
     position: absolute;
     left: -999999px;
-    @for $i from 1 through 5 {
+    @for $i from 1 through 6 {
       &#chord-#{$i}:checked ~ ul label[for="chord-#{$i}"] {
         background: tomato;
       }

@@ -2,7 +2,7 @@
 
   var canvas = document.getElementById("canvas");
   canvas.width = 1100;
-  canvas.height = 200;
+  canvas.height = 300;
   var ctx = canvas.getContext("2d");
 
   var WIDTH = canvas.width;
@@ -192,8 +192,8 @@ class Instrument {
     }
           const $inputs = document.querySelectorAll('input'),
           chords = [
-            'G0 C1 E1 D1 B1', 'F0 A1 C1 E1 F1', 'G0 B1 D1 F2 D2', 
-            'D1 F1 A1 C2 D0', 'E1 G1 B1'
+            'G0 C1 E1 C0 B1', 'F0 A1 C1 E1 F1', 'G0 B1 D1 G2 D2', 
+            'D1 F1 A1 C2 D0', 'E1 F1 E1 C0 B1 C2 B1 G1 C0', 
           ].map(formatChords);
 
           var chordIdx = 0,
@@ -237,7 +237,7 @@ class Instrument {
           var r = barHeight + (30 * (i/bufferLength));
   
           ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-          ctx.fillRect(x, HEIGHT - (barHeight*1.2), barWidth, barHeight);
+          ctx.fillRect(x, HEIGHT - (barHeight*1.4), barWidth, barHeight);
   
           x += barWidth + 1;
         }
@@ -263,7 +263,7 @@ class Instrument {
           for (let j = 0; j < chord.length; j++){
             let noteOct = chord[j].split('')
                 note = noteOct[0];
-            let oct = (noteOct[1] === "0") ? i + 2 : i + 4;
+            let oct = (noteOct[1] === "0") ? i + 2 : i + 4 ;
             note += oct;
             arr.push(note);
           }

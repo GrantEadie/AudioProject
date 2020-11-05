@@ -20,6 +20,9 @@
 .hiddenOverflow input#chord-5:checked ~ ul label[for=chord-5] {
   background: tomato;
 }
+.hiddenOverflow input#chord-6:checked ~ ul label[for=chord-6] {
+  background: tomato;
+}
 .hiddenOverflow ul {
   list-style: none;
   margin: 0;
