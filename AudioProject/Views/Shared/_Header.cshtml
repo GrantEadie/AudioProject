@@ -35,8 +35,8 @@
 
     @if (User.Identity.IsAuthenticated)
     {
-      <div class="userinfo">
-        @Html.ActionLink(@User.Identity.Name, "Index","Account", null, new { @class = "btn btn-info"})
+      <div class="nav-item userinfo">
+        @Html.ActionLink(@User.Identity.Name, "Index","Account", null, new { @class = "btn btn-outline-info"})
       </div>
     }
     else
@@ -53,6 +53,17 @@
   </li> 
 
   }
+  
+  <p data-muted="false" class="mx-auto my-2 my-sm-0"></p>
+  <li class="nav-item">
+    volume
+  </li> 
+  <div class="slidecontainer1">
+      <input type="range" min="10" max="500" value="80" class="slider1" id="VolumeOutput">
+    </div>
+    <li class="nav-item">
+      <p id="mute" data-muted="false" class="btn btn-outline-dark btn-sm mx-auto my-2 my-sm-0">mute</p>
+    </li>
 </nav>
 
 @* <li class="nav-item">

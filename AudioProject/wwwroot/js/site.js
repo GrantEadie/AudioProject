@@ -8,7 +8,7 @@
   var WIDTH = canvas.width;
   var HEIGHT = canvas.height;
 
-  var bufferLength = 128;
+  var bufferLength = 256;
 
   var dataArray = new Uint8Array(128);
   var barWidth = (WIDTH / bufferLength) * 2.5;
@@ -26,9 +26,11 @@ var startSound = document.querySelector('#startsound');
 var mute = document.querySelector('#mute');
 
 // Reverb
-let reverb = new Tone.Reverb(0.1, 0.1, 0);
+let reverb = new Tone.Reverb(0.1, 0.1);
+reverb.wet.value = 0;
 
 function reverbWet(wetAmount) {
+  reverb.wet.value = wetAmount/200;
   reverb.decay = wetAmount/10;
 }
 
@@ -44,6 +46,14 @@ let filter = new Tone.Filter(5000, "lowpass");
 
 function filterWet(wetAmount) {
   filter.frequency.value = wetAmount;
+}
+
+// Volume 
+let volume = new Tone.Volume(-5);
+function volumeAmount(wetAmount) {
+  // console.log(wetAmount/10 * -1);
+  volume.volume.value = (wetAmount/10 * -1);
+  console.log(volume.volume.value);
 }
 
 
@@ -139,6 +149,18 @@ class Instrument {
     let partials = oscillatorPartials === 'none' ? '' : oscillatorPartials;
     this.synth.oscillator.type = `${oscillatorType}${partials}`;
   }
+
+  updateADSR(envParam, inputParam) {
+    if (this.synth.name === "PluckSynth") {
+      if (envParam === 'attack') {
+        this.synth.attackNoise = inputParam;
+      } else if (envParam ==='release'){
+        this.synth.release = inputParam;
+      } 
+    } else {
+      this.synth.envelope[envParam] = inputParam;
+    }
+  }
 }
 
 
@@ -185,6 +207,30 @@ class Instrument {
       delayWet($("#DelayOutput").val()); 
       $('span#delay-output').text($("#DelayOutput").val());
     });
+    $("#VolumeOutput").on('input', function() {
+      volumeAmount($("#VolumeOutput").val());
+      $('#span#volume-output').text($("#VolumeOutput").val());
+    })
+
+
+    // ADSR
+
+    $('#attack').on('input', function() {
+      $attack = $('#attack').val() / 1000;
+      inst.updateADSR("attack", $attack);
+    })
+    $('#decay').on('input', function() {
+      $decay = $('#decay').val() / 100;
+      inst.updateADSR("decay", $decay);
+    })
+    $('#sustain').on('input', function() {
+      $sustain = $('#sustain').val() / 1000;
+      inst.updateADSR("sustain", $sustain);
+    })
+    $('#release').on('input', function() {
+      $release = $('#release').val() / 100;
+      inst.updateADSR("release", $release);
+    })
     
 
     function updateBPM(speed) {
@@ -211,7 +257,7 @@ class Instrument {
 
       let analyser = new Tone.Analyser();
       
-      inst.gain.chain(reverb, filter, delay, analyser, Tone.Destination);
+      inst.gain.chain(reverb, filter, delay, volume, analyser, Tone.Destination);
       Tone.Transport.scheduleRepeat(onRepeat, '16n');
       
       Tone.Transport.start();
@@ -223,7 +269,6 @@ class Instrument {
         x = 0;
   
         dataArray = analyser.getValue().map(x => x + 200);
-        console.log(dataArray)
         
   
         ctx.fillStyle = "#FFFFFF";
@@ -234,7 +279,7 @@ class Instrument {
           
           var b = 222;
           var g = 192;
-          var r = barHeight + (30 * (i/bufferLength));
+          var r = (barHeight*1.2) + (100 * (i/bufferLength));
   
           ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
           ctx.fillRect(x, HEIGHT - (barHeight*1.4), barWidth, barHeight);
@@ -245,9 +290,6 @@ class Instrument {
 
       renderFrame();
 
-      setInterval(() => {
-        console.log(analyser.getValue(Float32Array).map(x => Math.round(x + 100))[1]);
-      }, 100);
 
       function onRepeat(time) {
       let chord = chords[chordIdx],
@@ -277,7 +319,7 @@ class Instrument {
             mute.setAttribute('data-muted', 'true');
             mute.innerHTML = "unmute";
           } else {
-            inst.gain.gain.rampTo(0.2);
+            inst.gain.gain.rampTo(0.5);
             mute.setAttribute('data-muted', 'false');
             mute.innerHTML = "mute";
           };
